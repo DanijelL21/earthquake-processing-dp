@@ -1,0 +1,11 @@
+version: 0.2
+env: 
+  exported-variables:
+    - COMMIT_ID
+phases:
+  install:
+    commands:
+      - echo "No new changes in the package."
+  build:
+    commands:
+      - echo "No new changes in the packageeee."
