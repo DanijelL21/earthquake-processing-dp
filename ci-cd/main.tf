@@ -1,72 +1,116 @@
+locals {
+  github_config = jsondecode(file("github_config.json"))
+}
+
+data "aws_ssm_parameter" "s3_artifact_bucket" {
+  name = "/backend/s3_artifact_bucket"
+}
+
 resource "aws_codepipeline" "codepipeline" {
   name     = "${var.project_part}-cicd"
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
-    location = aws_s3_bucket.codepipeline_bucket.bucket
     type     = "S3"
-
-    encryption_key {
-      id   = data.aws_kms_alias.s3kmskey.arn
-      type = "KMS"
-    }
+    location = data.aws_ssm_parameter.s3_artifact_bucket.value
   }
 
   stage {
     name = "Source"
 
     action {
-      name             = "Source"
+      name             = "GitHub_Source"
       category         = "Source"
-      owner            = "AWS"
-      provider         = "CodeStarSourceConnection"
+      owner            = "ThirdParty"
+      provider         = "GitHub"
       version          = "1"
-      output_artifacts = ["source_output"]
+      output_artifacts = ["PipelineSourceArtifacts"]
 
       configuration = {
-        ConnectionArn    = aws_codestarconnections_connection.example.arn
-        FullRepositoryId = "my-organization/example"
-        BranchName       = "main"
+        Owner      = local.github_config.github_owner
+        Repo       = local.github_config.github_repo
+        Branch     = local.github_config.github_branch
+        OAuthToken = local.github_config.github_oauth_token
       }
     }
   }
 
   stage {
-    name = "Build"
+    name = "Test"
 
     action {
-      name             = "Build"
+      name             = "CodeBuild_Test"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
-      input_artifacts  = ["source_output"]
-      output_artifacts = ["build_output"]
       version          = "1"
+      input_artifacts  = ["PipelineSourceArtifacts"]
+      output_artifacts = ["PipelineTestArtifacts"]
 
       configuration = {
-        ProjectName = "test"
+        ProjectName = aws_codebuild_project.testing_project.name
       }
     }
   }
+}
 
-  stage {
-    name = "Deploy"
+# PROJECTS
 
-    action {
-      name            = "Deploy"
-      category        = "Deploy"
-      owner           = "AWS"
-      provider        = "CloudFormation"
-      input_artifacts = ["build_output"]
-      version         = "1"
+resource "aws_codebuild_project" "testing_project" {
+  name         = "${var.project_part}-cicd-test"
+  service_role = aws_iam_role.codepipeline_role.arn
 
-      configuration = {
-        ActionMode     = "REPLACE_ON_FAILURE"
-        Capabilities   = "CAPABILITY_AUTO_EXPAND,CAPABILITY_IAM"
-        OutputFileName = "CreateStackOutput.json"
-        StackName      = "MyStack"
-        TemplatePath   = "build_output::sam-templated.yaml"
-      }
-    }
+  environment {
+    compute_type = "BUILD_GENERAL1_SMALL"
+    image        = "aws/codebuild/standard:5.0"
+    type         = "LINUX_CONTAINER"
   }
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "ci-cd/buildspec-testing.yml"
+  }
+}
+
+# ROLES
+
+resource "aws_iam_role" "codepipeline_role" {
+  name = "${var.project_part}-cicd-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = [
+          "codepipeline.amazonaws.com",
+          "codebuild.amazonaws.com"
+        ]
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "codepipeline_policy" {
+  name = "${var.project_part}-cicd-role-policy"
+  role = aws_iam_role.codepipeline_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:*",
+          "codebuild:*",
+          "logs:*"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }
