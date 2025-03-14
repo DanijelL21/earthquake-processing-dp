@@ -6,6 +6,12 @@ phases:
     commands:
       ### Installing dependencies
       - apt-get update
+      - apt-get install -y build-essential curl file git
+      - /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      - echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /root/.bashrc
+      - eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+      - brew install terraform
+      - terraform --version
       - python --version
       - pip --version
       - git --version
