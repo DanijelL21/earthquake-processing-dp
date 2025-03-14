@@ -3,7 +3,7 @@ locals {
 }
 
 locals {
-  production_mode = var.environment == "dev" # change to prod
+  production_mode = var.environment == "prod"
 }
 
 data "aws_ssm_parameter" "s3_artifact_bucket" {
@@ -13,6 +13,8 @@ data "aws_ssm_parameter" "s3_artifact_bucket" {
 data "aws_ssm_parameter" "admin_sns_topic" {
   name = "/backend/sns/admin_topic"
 }
+
+# RESOURCES
 
 resource "aws_codepipeline" "codepipeline" {
   name     = "${var.project_part}-cicd"

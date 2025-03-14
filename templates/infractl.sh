@@ -3,64 +3,64 @@
 set -e
 
 DEPLOYMENT_ENV=${1:-dev}
-ACTION=${2:-deploy}
-REGION=${3:-us-east-1}
+EXEC=${2:-local}
+ACTION=${3:-deploy}
+REGION=${4:-us-east-1}
 
-check_environment(){
-    case "$DEPLOYMENT_ENV" in
-        dev)
-            PROFILE=aws-acct-training.AdministratorAccess
-            echo "Selected deployment environment: $DEPLOYMENT_ENV"
-            ;;
+S3_BUCKET=$(aws ssm get-parameter --name "/backend/s3_bucket" --query "Parameter.Value" --output text)
+echo "Artifacts stored in $S3_BUCKET"
 
-        preprod)
-            PROFILE=aws-acct-training-preprod.AdministratorAccess
-            echo "Selected deployment environment: $DEPLOYMENT_ENV"
-            ;;
-
-        prod)
+case "${EXEC}" in 
+    local)
+        if [[ "${DEPLOYMENT_ENV}" == "dev" ]]; then
+            PROFILE="aws-acct-training.AdministratorAccess"
+        elif [[ "${DEPLOYMENT_ENV}" == "preprod" ]]; then
+            PROFILE="aws-acct-training-preprod.AdministratorAccess"
+        elif [[ "${DEPLOYMENT_ENV}" == "prod" ]]; then
             PROFILE=aws-acct-training-prod.AdministratorAccess
-            echo "Selected deployment environment: $DEPLOYMENT_ENV"
-            ;;
-
-        *)
+        else 
             echo "Invalid deployment environment: $DEPLOYMENT_ENV. Please select dev, preprod or prod"
             exit 1
-    esac
-    export AWS_PROFILE=$PROFILE
-}
+        fi
 
-init_pipeline(){
-    echo "Initializing Terraform..."
-    S3_BUCKET=$(aws ssm get-parameter --name "/backend/s3_bucket" --query "Parameter.Value" --output text)
-    echo "Artifacts stored in $S3_BUCKET"
-
-    terraform init \
+        echo "Initializing Terraform..."
+        terraform init \
             -backend-config="key=$DEPLOYMENT_ENV/templates/terraform.tfstate" \
             -backend-config="region=$REGION" \
             -backend-config="profile=$PROFILE" \
             -backend-config="bucket=$S3_BUCKET"
-}
 
-deploy_pipeline(){
-    echo "Planning the deployment..."
-    terraform plan -var="profile=$PROFILE"
+        if [ "$ACTION" == "destroy" ]; then
+            echo "Destroying ${STACK_NAME} in $DEPLOYMENT_ENV environment."
+            terraform destroy -var="profile=$PROFILE"
+        elif [ "$ACTION" == "deploy" ]; then
+            echo "Planning the deployment..."
+            terraform plan -var="profile=$PROFILE"
 
-    echo "Applying the plan..."
-    terraform apply -auto-approve -var="profile=$PROFILE"
-}
+            echo "Applying the plan..."
+            terraform apply -auto-approve -var="profile=$PROFILE"
+        else
+            echo "Invalid action: $ACTION. Please use 'deploy' or 'destroy'."
+            exit 1
+        fi
 
-echo "Checking deployment environment..."
-check_environment 
-init_pipeline
+    pipeline)
+        echo "Initializing Terraform..."
+        terraform init \
+            -backend-config="key=$DEPLOYMENT_ENV/templates/terraform.tfstate" \
+            -backend-config="bucket=$S3_BUCKET"
 
-if [ "$ACTION" == "destroy" ]; then
-    echo "Destroying ${STACK_NAME} in $DEPLOYMENT_ENV environment."
-    terraform destroy -var="profile=$PROFILE"
-elif [ "$ACTION" == "deploy" ]; then
-    echo "Deploying ${STACK_NAME} in $DEPLOYMENT_ENV environment."
-    deploy_pipeline
-else
-    echo "Invalid action: $ACTION. Please use 'deploy' or 'destroy'."
-    exit 1
-fi
+        if [ "$ACTION" == "destroy" ]; then
+            echo "Destroying ${STACK_NAME} in $DEPLOYMENT_ENV environment."
+            terraform destroy
+        elif [ "$ACTION" == "deploy" ]; then
+            echo "Planning the deployment..."
+            terraform plan 
+
+            echo "Applying the plan..."
+            terraform apply -auto-approve
+        else
+            echo "Invalid action: $ACTION. Please use 'deploy' or 'destroy'."
+            exit 1
+        fi
+esac 

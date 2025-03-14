@@ -15,6 +15,6 @@ phases:
   #     - python --version
   #     - pip --version
   #     - git --version
-  # build:
+  build:
     commands:
       - echo Starting with tests
