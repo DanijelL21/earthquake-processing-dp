@@ -14,3 +14,8 @@ variable "project_part" {
   type        = string
   default     = "terraform-backend"
 }
+
+variable "admin_emails" {
+  type    = list(string)
+  default = ["leonidanijel@gmail.com"]
+}

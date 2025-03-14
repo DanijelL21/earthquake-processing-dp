@@ -2,8 +2,16 @@ locals {
   github_config = jsondecode(file("github_config.json"))
 }
 
+locals {
+  production_mode = var.environment == "dev" # change to prod
+}
+
 data "aws_ssm_parameter" "s3_artifact_bucket" {
   name = "/backend/s3_artifact_bucket"
+}
+
+data "aws_ssm_parameter" "admin_sns_topic" {
+  name = "/backend/sns/admin_topic"
 }
 
 resource "aws_codepipeline" "codepipeline" {
@@ -49,6 +57,25 @@ resource "aws_codepipeline" "codepipeline" {
 
       configuration = {
         ProjectName = aws_codebuild_project.testing_project.name
+      }
+    }
+  }
+
+  dynamic "stage" {
+    for_each = local.production_mode ? [1] : []
+
+    content {
+      name = "Approve"
+
+      action {
+        name     = "Production-Approval"
+        category = "Approval"
+        owner    = "AWS"
+        provider = "Manual"
+        version  = "1"
+        configuration = {
+          NotificationArn = data.aws_ssm_parameter.admin_sns_topic.value
+        }
       }
     }
   }
@@ -151,10 +178,32 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         Action = [
           "s3:*",
           "codebuild:*",
-          "logs:*"
+          "logs:*",
+          "sns:*"
         ]
         Resource = "*"
       }
     ]
   })
+}
+
+# ALARMS
+
+resource "aws_cloudwatch_event_rule" "codepipeline_notifications" {
+  name = "${var.project_part}-ci-cd-notifications"
+
+  event_pattern = jsonencode({
+    "detail-type" = ["CodePipeline Stage Execution State Change"],
+    "source"      = ["aws.codepipeline"],
+    "detail" = {
+      "pipeline" = [aws_codepipeline.codepipeline.name]
+      "state"    = ["FAILED", "CANCELED"]
+    }
+  })
+}
+
+resource "aws_cloudwatch_event_target" "notifications_target" {
+  rule      = aws_cloudwatch_event_rule.codepipeline_notifications.name
+  arn       = data.aws_ssm_parameter.admin_sns_topic.value
+  target_id = "TargetTopic"
 }

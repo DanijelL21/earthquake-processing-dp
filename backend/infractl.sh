@@ -53,3 +53,5 @@ else
     echo "Invalid action: $ACTION. Please use 'deploy' or 'destroy'."
     exit 1
 fi
+
+## docker cp 6a068c0bd749:home/repos/terraform-project/backend/ .
