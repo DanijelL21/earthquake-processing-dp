@@ -36,7 +36,7 @@ init_pipeline(){
     echo "Artifacts stored in $S3_BUCKET"
 
     terraform init \
-            -backend-config="key=$DEPLOYMENT_ENV/ci-cd/terraform.tfstate" \
+            -backend-config="key=$DEPLOYMENT_ENV/templates/terraform.tfstate" \
             -backend-config="region=$REGION" \
             -backend-config="profile=$PROFILE" \
             -backend-config="bucket=$S3_BUCKET"
@@ -44,11 +44,10 @@ init_pipeline(){
 
 deploy_pipeline(){
     echo "Planning the deployment..."
-    terraform plan -var="profile=$PROFILE" -var="environment=$DEPLOYMENT_ENV"
+    terraform plan -var="profile=$PROFILE"
 
     echo "Applying the plan..."
-    # terraform -chdir=../ apply -auto-approve -var="profile=$PROFILE"
-    terraform apply -var="profile=$PROFILE" -var="environment=$DEPLOYMENT_ENV"
+    terraform apply -auto-approve -var="profile=$PROFILE"
 }
 
 echo "Checking deployment environment..."
