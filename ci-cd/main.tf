@@ -144,8 +144,8 @@ resource "aws_codebuild_project" "deploy_project" {
   }
 
   source {
-    type     = "CODEPIPELINE"
-    location = "ci-cd/buildspec.yml"
+    type      = "CODEPIPELINE"
+    buildspec = "ci-cd/buildspec.yml"
   }
 }
 

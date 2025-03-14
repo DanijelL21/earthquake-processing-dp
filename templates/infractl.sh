@@ -43,7 +43,7 @@ case "${EXEC}" in
             echo "Invalid action: $ACTION. Please use 'deploy' or 'destroy'."
             exit 1
         fi
-
+        ;;
     pipeline)
         echo "Initializing Terraform..."
         terraform init \
@@ -63,4 +63,5 @@ case "${EXEC}" in
             echo "Invalid action: $ACTION. Please use 'deploy' or 'destroy'."
             exit 1
         fi
+        ;;
 esac 
