@@ -52,6 +52,24 @@ resource "aws_codepipeline" "codepipeline" {
       }
     }
   }
+
+  stage {
+    name = "Deploy"
+
+    action {
+      name             = "CodeBuild_Deploy"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      input_artifacts  = ["PipelineSourceArtifacts"]
+      output_artifacts = ["PipelineDeployArtifacts"]
+
+      configuration = {
+        ProjectName = aws_codebuild_project.deploy_project.name
+      }
+    }
+  }
 }
 
 # PROJECTS
@@ -73,6 +91,32 @@ resource "aws_codebuild_project" "testing_project" {
   source {
     type      = "CODEPIPELINE"
     buildspec = "ci-cd/buildspec-testing.yml"
+  }
+}
+
+resource "aws_codebuild_project" "deploy_project" {
+  name         = "${var.project_part}-deploy"
+  service_role = aws_iam_role.codepipeline_role.arn
+
+  environment {
+    compute_type = "BUILD_GENERAL1_SMALL"
+    image        = "aws/codebuild/standard:5.0"
+    type         = "LINUX_CONTAINER"
+
+    environment_variable {
+      name  = "ENVIRONMENT"
+      value = var.environment
+      type  = "PLAINTEXT"
+    }
+  }
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  source {
+    type     = "CODEPIPELINE"
+    location = "ci-cd/buildspec.yml"
   }
 }
 

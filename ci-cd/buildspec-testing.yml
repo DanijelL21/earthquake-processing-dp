@@ -5,7 +5,15 @@ env:
 phases:
   install:
     commands:
-      - echo "No new changes in the package."
+      - export LC_ALL=C.UTF-8 
+      - export LANG=C.UTF-8
+      - apt-get update 
+      - apt-get install python3-pip -y 
+      - pip install --upgrade pipenv==2022.1.8
+      - pipenv --version
+      - python --version
+      - pip --version
+      - git --version
   build:
     commands:
-      - echo "No new changes in the packageeee."
+      - echo Starting with tests

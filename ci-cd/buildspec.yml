@@ -1,0 +1,17 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      ### Installing dependencies
+      - apt-get update
+      - python --version
+      - pip --version
+      - git --version
+      - pip install --upgrade pipenv==2022.1.8
+  build:
+    commands:
+      - ls && pwd
+      - chmod +x templates/infractl.sh
+      - ./templates/infractl.sh ${ENVIRONMENT}
