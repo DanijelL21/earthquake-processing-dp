@@ -181,7 +181,8 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
           "s3:*",
           "codebuild:*",
           "logs:*",
-          "sns:*"
+          "sns:*",
+          "ssm:*"
         ]
         Resource = "*"
       }

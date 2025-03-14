@@ -14,4 +14,4 @@ phases:
     commands:
       - ls && pwd
       - chmod +x templates/infractl.sh
-      - ./templates/infractl.sh ${ENVIRONMENT}
+      - ./templates/infractl.sh ${ENVIRONMENT} pipeline
