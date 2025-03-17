@@ -7,9 +7,6 @@ EXEC=${2:-local}
 ACTION=${3:-deploy}
 REGION=${4:-us-east-1}
 
-S3_BUCKET=$(aws ssm get-parameter --name "/backend/s3_bucket" --query "Parameter.Value" --output text)
-echo "Artifacts stored in $S3_BUCKET"
-
 case "${EXEC}" in 
     local)
         if [[ "${DEPLOYMENT_ENV}" == "dev" ]]; then
@@ -22,6 +19,9 @@ case "${EXEC}" in
             echo "Invalid deployment environment: $DEPLOYMENT_ENV. Please select dev, preprod or prod"
             exit 1
         fi
+
+        S3_BUCKET=$(aws ssm get-parameter --name "/backend/s3_bucket" --query "Parameter.Value" --output text --region $REGION --profile $PROFILE)
+        echo "Artifacts stored in $S3_BUCKET"
 
         echo "Initializing Terraform..."
         terraform init \
@@ -45,6 +45,9 @@ case "${EXEC}" in
         fi
         ;;
     pipeline)
+        S3_BUCKET=$(aws ssm get-parameter --name "/backend/s3_bucket" --query "Parameter.Value" --output text)
+        echo "Artifacts stored in $S3_BUCKET"
+
         echo "Initializing Terraform..."
         terraform init \
             -backend-config="key=$DEPLOYMENT_ENV/templates/terraform.tfstate" \
