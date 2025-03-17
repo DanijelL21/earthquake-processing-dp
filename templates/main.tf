@@ -8,7 +8,7 @@ resource "null_resource" "install_dependencies" {
   }
 
   triggers = {
-    requirements_hash = filesha1("lambdas/requirements.txt")
+    always_run = timestamp()
   }
 }
 
@@ -30,21 +30,47 @@ resource "aws_lambda_function" "ingestion_lambda" {
   function_name = "${var.project_part}-ingestion-lambda"
   description   = "This lambda will get data from api and store it in S3 bucket."
 
-  filename         = data.archive_file.lambda_zip.output_path
-  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  handler          = "ingestion_lambda.lambda_handler"
-  runtime          = "python3.9"
-  timeout          = 300
+  filename = data.archive_file.lambda_zip.output_path
+  handler  = "ingestion_lambda.lambda_handler"
+  runtime  = "python3.9"
+  timeout  = 300
 
   role       = aws_iam_role.lambda_role.arn
   depends_on = [null_resource.install_dependencies]
 
 }
 
+resource "aws_lambda_function_event_invoke_config" "ingestion_lambda_retry" {
+  function_name                = aws_lambda_function.ingestion_lambda.function_name
+  maximum_event_age_in_seconds = 60
+  maximum_retry_attempts       = 3
+}
+
+resource "aws_cloudwatch_event_rule" "ingestion_lambda_trigger" {
+  name                = "${aws_lambda_function.ingestion_lambda.function_name}-hourly-trigger"
+  description         = "Trigger Ingestion Lambda every hour"
+  schedule_expression = "rate(1 hour)"
+  state               = "DISABLED"
+}
+
+resource "aws_cloudwatch_event_target" "trigger_lambda" {
+  rule      = aws_cloudwatch_event_rule.ingestion_lambda_trigger.name
+  target_id = "lambda"
+  arn       = aws_lambda_function.ingestion_lambda.arn
+}
+
+resource "aws_lambda_permission" "allow_cloudwatch" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.ingestion_lambda.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.ingestion_lambda_trigger.arn
+}
+
 # ROLES
 
 resource "aws_iam_role" "lambda_role" {
-  name = "${var.project_part}-ingestion-lambda-role"
+  name = "${aws_lambda_function.ingestion_lambda.function_name}-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -61,7 +87,7 @@ resource "aws_iam_role" "lambda_role" {
 }
 
 resource "aws_iam_role_policy" "lambda-policy" {
-  name = "${var.project_part}-ingestion-lambda-role-policy"
+  name = "${aws_lambda_function.ingestion_lambda.function_name}-role-policy"
   role = aws_iam_role.lambda_role.id
   policy = jsonencode({
     Version = "2012-10-17"

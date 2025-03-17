@@ -182,7 +182,9 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
           "codebuild:*",
           "logs:*",
           "sns:*",
-          "ssm:*"
+          "ssm:*",
+          "lambda:*",
+          "iam:*"
         ]
         Resource = "*"
       }
@@ -192,21 +194,22 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
 
 # ALARMS
 
-resource "aws_cloudwatch_event_rule" "codepipeline_notifications" {
-  name = "${var.project_part}-ci-cd-notifications"
+resource "aws_cloudwatch_metric_alarm" "codepipeline_failed_alarm" {
+  alarm_name          = "${var.project_part}-failed-alarm"
+  alarm_description   = "Trigger an alarm when CodePipeline fails"
+  namespace           = "AWS/CodePipeline"
+  metric_name         = "PipelineExecutionFailed"
+  statistic           = "Sum"
+  evaluation_periods  = 1
+  period              = 60
+  comparison_operator = "GreaterThanThreshold"
+  threshold           = 0
 
-  event_pattern = jsonencode({
-    "detail-type" = ["CodePipeline Stage Execution State Change"],
-    "source"      = ["aws.codepipeline"],
-    "detail" = {
-      "pipeline" = [aws_codepipeline.codepipeline.name]
-      "state"    = ["FAILED", "CANCELED"]
-    }
-  })
-}
+  dimensions = {
+    PipelineName = aws_codepipeline.codepipeline.name
+  }
 
-resource "aws_cloudwatch_event_target" "notifications_target" {
-  rule      = aws_cloudwatch_event_rule.codepipeline_notifications.name
-  arn       = data.aws_ssm_parameter.admin_sns_topic.value
-  target_id = "TargetTopic"
+  alarm_actions = [
+    data.aws_ssm_parameter.admin_sns_topic.value
+  ]
 }
