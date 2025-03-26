@@ -93,7 +93,7 @@ resource "aws_codepipeline" "codepipeline" {
       version          = "1"
       run_order        = 1
       input_artifacts  = ["PipelineSourceArtifacts"]
-      output_artifacts = ["PipelineDeployArtifacts"]
+      output_artifacts = ["PipelineDeployInfraArtifacts"]
 
       configuration = {
         ProjectName = aws_codebuild_project.deploy_project.name
@@ -115,7 +115,7 @@ resource "aws_codepipeline" "codepipeline" {
       version          = "1"
       run_order        = 2
       input_artifacts  = ["PipelineSourceArtifacts"]
-      output_artifacts = ["PipelineDeployArtifacts"]
+      output_artifacts = ["PipelineDeployIngestionArtifacts"]
 
       configuration = {
         ProjectName = aws_codebuild_project.deploy_project.name
@@ -137,7 +137,7 @@ resource "aws_codepipeline" "codepipeline" {
       version          = "1"
       run_order        = 3
       input_artifacts  = ["PipelineSourceArtifacts"]
-      output_artifacts = ["PipelineDeployArtifacts"]
+      output_artifacts = ["PipelineDeployProcessingArtifacts"]
 
       configuration = {
         ProjectName = aws_codebuild_project.deploy_project.name
