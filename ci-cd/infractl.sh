@@ -6,6 +6,8 @@ DEPLOYMENT_ENV=${1:-dev}
 ACTION=${2:-deploy}
 REGION=${3:-us-east-1}
 
+FOLDER_NAME="$(basename "$(dirname "$(realpath "$0")")")"
+
 check_environment(){
     case "$DEPLOYMENT_ENV" in
         dev)
@@ -36,7 +38,7 @@ init_pipeline(){
     echo "Artifacts stored in $S3_BUCKET"
 
     terraform init \
-            -backend-config="key=$DEPLOYMENT_ENV/ci-cd/terraform.tfstate" \
+            -backend-config="key=$DEPLOYMENT_ENV/$FOLDER_NAME/terraform.tfstate" \
             -backend-config="region=$REGION" \
             -backend-config="profile=$PROFILE" \
             -backend-config="bucket=$S3_BUCKET"

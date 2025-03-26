@@ -19,6 +19,5 @@ phases:
   build:
     commands:
       - ls && pwd
-      - chmod +x templates/infractl.sh
-      - cd templates/
-      - ./infractl.sh ${ENVIRONMENT} pipeline
+      - chmod +x ${STACK_DIR}/infractl.sh
+      - ./${STACK_DIR}/infractl.sh ${ENVIRONMENT} pipeline

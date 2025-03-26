@@ -1,0 +1,16 @@
+Options for snowflake
+
+1. Glue
+
+
+2. Snowpipe (Automated Data Ingestion)
+
+
+CREATE TABLE earthquake_data (
+    generated BIGINT,
+    properties VARIANT,
+    geometry_type STRING,
+    geometry_coordinates VARIANT,
+    bbox VARIANT
+);
+

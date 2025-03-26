@@ -25,22 +25,22 @@ resource "aws_s3_bucket" "artifact_bucket" {
   }
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "artifact_bucket_lifecycle" {
-  bucket = aws_s3_bucket.artifact_bucket.id
+# resource "aws_s3_bucket_lifecycle_configuration" "artifact_bucket_lifecycle" {
+#   bucket = aws_s3_bucket.artifact_bucket.id
 
-  rule {
-    id     = "expire_old_objects"
-    status = "Enabled"
+#   rule {
+#     id     = "expire_old_objects"
+#     status = "Enabled"
 
-    filter {
-      prefix = ""
-    }
+#     filter {
+#       prefix = ""
+#     }
 
-    expiration {
-      days = 1
-    }
-  }
-}
+#     expiration {
+#       days = 1
+#     }
+#   }
+# }
 
 resource "aws_ssm_parameter" "artifact_bucket_name" {
   name  = "/backend/s3_artifact_bucket"
@@ -63,4 +63,18 @@ resource "aws_sns_topic_subscription" "admin_sns_topic_subscription" {
   topic_arn = aws_sns_topic.admin_sns_topic.arn
   protocol  = "email"
   endpoint  = each.value
+}
+
+resource "aws_s3_bucket" "s3_data_bucket" {
+  bucket_prefix = "${var.project_part}-databucket-"
+
+  tags = {
+    SERVICE = var.project_part
+  }
+}
+
+resource "aws_ssm_parameter" "s3_data_bucket_name" {
+  name  = "/backend/databucket"
+  type  = "String"
+  value = aws_s3_bucket.s3_data_bucket.id
 }

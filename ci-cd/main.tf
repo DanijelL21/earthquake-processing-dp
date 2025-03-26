@@ -86,16 +86,68 @@ resource "aws_codepipeline" "codepipeline" {
     name = "Deploy"
 
     action {
-      name             = "CodeBuild_Deploy"
+      name             = "${var.environment}-snowflake-infra-deploy"
       category         = "Build"
       owner            = "AWS"
       provider         = "CodeBuild"
       version          = "1"
+      run_order        = 1
       input_artifacts  = ["PipelineSourceArtifacts"]
       output_artifacts = ["PipelineDeployArtifacts"]
 
       configuration = {
         ProjectName = aws_codebuild_project.deploy_project.name
+        EnvironmentVariables = jsonencode([
+          {
+            name  = "STACK_DIR"
+            value = "snowflake-infra"
+            type  = "PLAINTEXT"
+          }
+        ])
+      }
+    }
+
+    action {
+      name             = "${var.environment}-ingestion-deploy"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      run_order        = 2
+      input_artifacts  = ["PipelineSourceArtifacts"]
+      output_artifacts = ["PipelineDeployArtifacts"]
+
+      configuration = {
+        ProjectName = aws_codebuild_project.deploy_project.name
+        EnvironmentVariables = jsonencode([
+          {
+            name  = "STACK_DIR"
+            value = "ingestion"
+            type  = "PLAINTEXT"
+          }
+        ])
+      }
+    }
+
+    action {
+      name             = "${var.environment}-processing-deploy"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      run_order        = 3
+      input_artifacts  = ["PipelineSourceArtifacts"]
+      output_artifacts = ["PipelineDeployArtifacts"]
+
+      configuration = {
+        ProjectName = aws_codebuild_project.deploy_project.name
+        EnvironmentVariables = jsonencode([
+          {
+            name  = "STACK_DIR"
+            value = "glue-processing"
+            type  = "PLAINTEXT"
+          }
+        ])
       }
     }
   }
