@@ -57,13 +57,13 @@ case "${EXEC}" in
 
         if [ "$ACTION" == "destroy" ]; then
             echo "Destroying ${STACK_NAME} in $DEPLOYMENT_ENV environment."
-            terraform destroy 
+            terraform destroy -var-file=../terraform.tfvars
         elif [ "$ACTION" == "deploy" ]; then
             echo "Planning the deployment..."
-            terraform plan 
+            terraform plan -var-file=../terraform.tfvars
 
             echo "Applying the plan..."
-            terraform apply -auto-approve 
+            terraform apply -auto-approve -var-file=../terraform.tfvars
         else
             echo "Invalid action: $ACTION. Please use 'deploy' or 'destroy'."
             exit 1
