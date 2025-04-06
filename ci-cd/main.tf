@@ -236,7 +236,10 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
           "sns:*",
           "ssm:*",
           "lambda:*",
-          "iam:*"
+          "iam:*",
+          "firehose:*",
+          "events:*",
+          "cloudwatch:*"
         ]
         Resource = "*"
       }

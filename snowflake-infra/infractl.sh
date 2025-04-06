@@ -16,7 +16,7 @@ case "${EXEC}" in
         elif [[ "${DEPLOYMENT_ENV}" == "preprod" ]]; then
             PROFILE="aws-acct-training-preprod.AdministratorAccess"
         elif [[ "${DEPLOYMENT_ENV}" == "prod" ]]; then
-            PROFILE=aws-acct-training-prod.AdministratorAccess
+            PROFILE="aws-acct-training-prod.AdministratorAccess"
         else 
             echo "Invalid deployment environment: $DEPLOYMENT_ENV. Please select dev, preprod or prod"
             exit 1

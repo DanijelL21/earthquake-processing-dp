@@ -122,7 +122,7 @@ resource "aws_glue_job" "processing_job" {
   max_capacity = 10
 }
 
-resource "aws_glue_trigger" "processing_job_trigger" {
+resource "aws_glue_trigger" "alarm_job_trigger" {
   name              = "${var.project_part}-FailGlueJobTrigger"
   type              = "CONDITIONAL"
   start_on_creation = true
