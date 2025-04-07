@@ -154,8 +154,9 @@ resource "aws_glue_job" "processing_job_alarm" {
   }
 
   default_arguments = {
-    "--JobName"    = "${var.project_part}-glue-job-fail-alarm"
-    "--AlarmTopic" = data.aws_ssm_parameter.admin_sns_topic.value
+    "--JobFailedName" = aws_glue_job.processing_job.name
+    "--AlarmTopic"    = data.aws_ssm_parameter.admin_sns_topic.value
+    "--Environment"   = var.environment
   }
 
 }

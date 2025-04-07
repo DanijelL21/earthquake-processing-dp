@@ -55,9 +55,9 @@ def deploy(environment, action, region, exec, include_tfvars, vars):
     destroy_command = f" terraform destroy"
 
     if include_tfvars:
-        plan_command += " -var-file=terraform.tfvars"
-        apply_command += " -var-file=terraform.tfvars"
-        destroy_command += " -var-file=terraform.tfvars"
+        plan_command += " -var-file=../terraform.tfvars"
+        apply_command += " -var-file=../terraform.tfvars"
+        destroy_command += " -var-file=../terraform.tfvars"
 
     if vars:
         for key, value in vars:
