@@ -156,9 +156,6 @@ resource "aws_glue_job" "processing_job_alarm" {
     "--AlarmTopic"    = data.aws_ssm_parameter.admin_sns_topic.value
     "--Environment"   = var.environment
   }
-  worker_type = "G.1X"
-
-  number_of_workers = 10
 }
 
 
@@ -222,7 +219,7 @@ resource "aws_cloudwatch_event_rule" "crawlers_fail_alarm" {
     detail_type = ["Glue Crawler State Change"]
     detail = {
       state       = ["Failed"]
-      crawlerName = aws_glue_crawler.source_table_crawler.name
+      crawlerName = [aws_glue_crawler.source_table_crawler.name]
     }
   })
 }
