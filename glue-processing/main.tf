@@ -118,8 +118,6 @@ resource "aws_glue_job" "processing_job" {
   worker_type = "G.1X"
 
   number_of_workers = 10
-
-  max_capacity = 10
 }
 
 resource "aws_glue_trigger" "alarm_job_trigger" {
@@ -158,7 +156,9 @@ resource "aws_glue_job" "processing_job_alarm" {
     "--AlarmTopic"    = data.aws_ssm_parameter.admin_sns_topic.value
     "--Environment"   = var.environment
   }
+  worker_type = "G.1X"
 
+  number_of_workers = 10
 }
 
 
