@@ -82,7 +82,7 @@ resource "aws_glue_trigger" "processing_job_trigger" {
 
   predicate {
     conditions {
-      crawler_name     = aws_glue_crawler.source_table_crawler_trigger.name
+      crawler_name     = aws_glue_crawler.source_table_crawler.name
       crawl_state      = "SUCCEEDED"
       logical_operator = "EQUALS"
     }
