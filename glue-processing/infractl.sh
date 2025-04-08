@@ -11,4 +11,4 @@ python ../one-deploy.py \
     --environment=${DEPLOYMENT_ENV} \
     --exec=${EXEC} \
     --action=${ACTION} \
-    --vars environment ${DEPLOYMENT_ENV}
+    --include_tfvars
