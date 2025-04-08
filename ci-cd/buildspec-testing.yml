@@ -5,16 +5,18 @@ env:
 phases:
   install:
     commands:
-      - echo Starting with tests
-  #     - export LC_ALL=C.UTF-8 
-  #     - export LANG=C.UTF-8
-  #     - apt-get update 
-  #     - apt-get install python3-pip -y 
-  #     - pip install --upgrade pipenv==2022.1.8
-  #     - pipenv --version
-  #     - python --version
-  #     - pip --version
-  #     - git --version
+      - export LC_ALL=C.UTF-8 
+      - export LANG=C.UTF-8
+      - apt-get update 
+      - apt-get install python3-pip -y 
+      - pip install --upgrade pipenv==2022.1.8
+      - pipenv --version
+      - python --version
+      - pip --version
+      - git --version
+      - pipenv install --dev
   build:
     commands:
       - echo Starting with tests
+      - chmod +x ./test.sh
+      - ./test.sh

@@ -44,7 +44,7 @@ variable "sf_db_name" {
 }
 
 variable "sf_table_name" {
-  description = "Name of snoflake table"
+  description = "Name of snowflake table"
   type        = string
 }
 

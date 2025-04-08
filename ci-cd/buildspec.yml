@@ -16,6 +16,7 @@ phases:
       - pip --version
       - git --version
       - pip install --upgrade pipenv==2022.1.8
+      - pipenv lock -r > src/requirements.txt
   build:
     commands:
       - ls && pwd

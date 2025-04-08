@@ -6,13 +6,14 @@ from typing import Any, Dict, Iterator, List
 import boto3
 import requests
 from aws_lambda_powertools import Logger
-from schemas import EarthquakeData, EarthquakeGeoJSON
 from tenacity import (
     retry,
     retry_if_exception_type,
     stop_after_attempt,
     wait_exponential,
 )
+
+from terraform_project.schemas import EarthquakeData, EarthquakeGeoJSON
 
 logger = Logger()
 
@@ -91,7 +92,7 @@ class FirehoseDelivery:
     firehose_client: Any = None
     batch_records: List[Dict[str, bytes]] = field(default_factory=list)
     data_size: int = 0
-    status: Status = Status()
+    status: Status = field(default_factory=Status)
 
     def __post_init__(self):
         """If we haven't got firehose_client then set the default one."""

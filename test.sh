@@ -1,7 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
+cd "${0%/*}" || exit
 
-set -e
-
-python one-deploy.py \
-    --vars test Yes \
-    --vars testtwo dev
+pipenv run pytest -v src/tests/ 
