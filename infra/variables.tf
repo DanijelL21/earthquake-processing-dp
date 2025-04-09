@@ -15,3 +15,14 @@ variable "project_part" {
   type        = string
   default     = "earthquake-processing-infra"
 }
+
+variable "environment" {
+  description = "The environment to deploy resources"
+  type        = string
+  default     = "dev"
+
+  validation {
+    condition     = contains(["dev", "preprod", "prod"], var.environment)
+    error_message = "The environment must be one of 'dev', 'staging', or 'prod'."
+  }
+}

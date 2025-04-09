@@ -108,6 +108,28 @@ resource "aws_codepipeline" "codepipeline" {
     }
 
     action {
+      name             = "${var.environment}-datalake-infra-deploy"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      run_order        = 1
+      input_artifacts  = ["PipelineSourceArtifacts"]
+      output_artifacts = ["PipelineDeployDatalakeInfraArtifacts"]
+
+      configuration = {
+        ProjectName = aws_codebuild_project.deploy_project.name
+        EnvironmentVariables = jsonencode([
+          {
+            name  = "STACK_DIR"
+            value = "infra"
+            type  = "PLAINTEXT"
+          }
+        ])
+      }
+    }
+
+    action {
       name             = "${var.environment}-ingestion-deploy"
       category         = "Build"
       owner            = "AWS"
