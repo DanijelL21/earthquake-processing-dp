@@ -13,7 +13,7 @@ variable "profile" {
 variable "project_part" {
   description = "The name of the project part"
   type        = string
-  default     = "earthquake-processing-infra"
+  default     = "earthquake-processing"
 }
 
 variable "environment" {
