@@ -12,7 +12,7 @@ variable "profile" {
 variable "project_part" {
   description = "The name of the project part"
   type        = string
-  default     = "terraform-backend"
+  default     = "earthquake-processing"
 }
 
 variable "admin_emails" {

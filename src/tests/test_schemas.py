@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from terraform_project.schemas import EarthquakeGeoJSON
+from earthquake_processing.schemas import EarthquakeGeoJSON
 
 
 @pytest.fixture

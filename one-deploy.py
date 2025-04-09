@@ -39,14 +39,12 @@ import click
     default=False,
     help="Include tfvars in deployment",
 )
-@click.option(
-    "--vars",
-    type=(str, str),
-    multiple=True,
-    help="Specify -var pairs (e.g. --vars key value). Example: --vars test Yes --vars environment dev",
-)
-def deploy(environment, action, region, exec, include_tfvars, vars):
+def deploy(environment, action, region, exec, include_tfvars):
     check_env(environment)
+
+    with open("config.json") as jfile:
+        config = json.loads(jfile.read())
+        params_dict = config[environment].get("parameters", None)
 
     init_command = f' terraform init \
         -backend-config="key={environment}/{os.path.basename(os.getcwd())}/terraform.tfstate"'
@@ -54,16 +52,18 @@ def deploy(environment, action, region, exec, include_tfvars, vars):
     apply_command = f" terraform apply"
     destroy_command = f" terraform destroy"
 
+    if params_dict:
+        for key, value in params_dict.items():
+            plan_command += f' -var="{key}={value}"'
+            apply_command += f' -var="{key}={value}"'
+            destroy_command += f' -var="{key}={value}"'
+
     if include_tfvars:
         plan_command += " -var-file=../terraform.tfvars"
         apply_command += " -var-file=../terraform.tfvars"
         destroy_command += " -var-file=../terraform.tfvars"
 
-    if vars:
-        for key, value in vars:
-            plan_command += f' -var="{key}={value}"'
-            apply_command += f' -var="{key}={value}"'
-            destroy_command += f' -var="{key}={value}"'
+    # OTVORI CONFIG I ZA SVAKI PARAMETAR NAPRAVI OVO
 
     if exec == "local":
         profile = deployment_profile(environment)

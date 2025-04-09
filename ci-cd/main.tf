@@ -39,7 +39,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         Owner      = local.github_config.github_owner
         Repo       = local.github_config.github_repo
-        Branch     = local.github_config.github_branch
+        Branch     = var.branch_name
         OAuthToken = local.github_config.github_oauth_token
       }
     }
