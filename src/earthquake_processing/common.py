@@ -13,7 +13,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from terraform_project.schemas import EarthquakeData, EarthquakeGeoJSON
+from earthquake_processing.schemas import EarthquakeData, EarthquakeGeoJSON
 
 logger = Logger()
 

@@ -10,10 +10,21 @@ variable "profile" {
   default     = ""
 }
 
+variable "environment" {
+  description = "The environment to deploy resources"
+  type        = string
+  default     = "dev"
+
+  validation {
+    condition     = contains(["dev", "preprod", "prod"], var.environment)
+    error_message = "The environment must be one of 'dev', 'staging', or 'prod'."
+  }
+}
+
 variable "project_part" {
   description = "The name of the project part"
   type        = string
-  default     = "terraform-ingestion"
+  default     = "earthquake-processing-ingestion"
 }
 
 variable "api_url" {

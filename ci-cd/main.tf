@@ -39,7 +39,7 @@ resource "aws_codepipeline" "codepipeline" {
       configuration = {
         Owner      = local.github_config.github_owner
         Repo       = local.github_config.github_repo
-        Branch     = local.github_config.github_branch
+        Branch     = var.branch_name
         OAuthToken = local.github_config.github_oauth_token
       }
     }
@@ -101,6 +101,28 @@ resource "aws_codepipeline" "codepipeline" {
           {
             name  = "STACK_DIR"
             value = "snowflake-infra"
+            type  = "PLAINTEXT"
+          }
+        ])
+      }
+    }
+
+    action {
+      name             = "${var.environment}-datalake-infra-deploy"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      version          = "1"
+      run_order        = 1
+      input_artifacts  = ["PipelineSourceArtifacts"]
+      output_artifacts = ["PipelineDeployDatalakeInfraArtifacts"]
+
+      configuration = {
+        ProjectName = aws_codebuild_project.deploy_project.name
+        EnvironmentVariables = jsonencode([
+          {
+            name  = "STACK_DIR"
+            value = "infra"
             type  = "PLAINTEXT"
           }
         ])

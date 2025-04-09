@@ -2,7 +2,7 @@ resource "null_resource" "install_dependencies" {
   provisioner "local-exec" {
     command = <<EOT
       rm -rf build && mkdir build
-      cp -r ../src/terraform_project/* build/
+      cp -r ../src/earthquake_processing/* build/
       pip install -r  ../src/requirements.txt -t build/
     EOT
   }

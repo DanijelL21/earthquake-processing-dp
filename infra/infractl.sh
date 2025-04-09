@@ -10,4 +10,4 @@ REGION=${4:-us-east-1}
 python ../one-deploy.py \
     --environment=${DEPLOYMENT_ENV} \
     --exec=${EXEC} \
-    --action=${ACTION} \
+    --action=${ACTION}

@@ -13,15 +13,8 @@ variable "profile" {
 variable "project_part" {
   description = "The name of the project part"
   type        = string
-  default     = "earthquake-processing-codepipeline"
+  default     = "earthquake-processing"
 }
-
-variable "branch_name" {
-  description = "The name of the branch where code is stored"
-  type        = string
-  default     = "development"
-}
-
 
 variable "environment" {
   description = "The environment to deploy resources"
