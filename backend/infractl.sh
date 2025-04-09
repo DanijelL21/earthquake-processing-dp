@@ -54,4 +54,4 @@ else
     exit 1
 fi
 
-## docker cp 6a068c0bd749:home/repos/terraform-project/backend/ .
+## docker cp 6a068c0bd749:home/repos/earthquake-processing-dp/backend/ .

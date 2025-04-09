@@ -1,0 +1,17 @@
+{
+    "prod": {
+        "parameters":{
+            "environment":"preprod"
+        }
+    },
+    "preprod": {
+        "parameters":{
+            "environment":"preprod"
+        }
+    },
+    "dev": {
+        "parameters":{
+            "environment":"dev"
+        }
+    }
+}

@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from terraform_project.common import get_earthquake_data
-from terraform_project.schemas import EarthquakeGeoJSON
+from earthquake_processing.common import get_earthquake_data
+from earthquake_processing.schemas import EarthquakeGeoJSON
 
 
 @pytest.fixture

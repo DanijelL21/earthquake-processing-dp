@@ -1,0 +1,20 @@
+{
+    "prod": {
+        "parameters":{
+            "environment":"preprod",
+            "branch_name": "main"
+        }
+    },
+    "preprod": {
+        "parameters":{
+            "environment":"preprod",
+            "branch_name": "main"
+        }
+    },
+    "dev": {
+        "parameters":{
+            "environment":"dev",
+            "branch_name": "development"
+        }
+    }
+}

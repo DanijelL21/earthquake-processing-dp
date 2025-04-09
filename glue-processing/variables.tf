@@ -24,7 +24,7 @@ variable "environment" {
 variable "project_part" {
   description = "The name of the project part"
   type        = string
-  default     = "terraform-processing"
+  default     = "earthquake-processing"
 }
 
 variable "source_database" {
