@@ -12,7 +12,7 @@ resource "snowflake_schema" "analytics_schema" {
 resource "snowflake_table" "earthquake_table" {
   name     = var.sf_table_name
   database = snowflake_database.default_db.name
-  schema   = var.sf_schema_name
+  schema   = snowflake_schema.analytics_schema.name
 
   column {
     name = "generated"
