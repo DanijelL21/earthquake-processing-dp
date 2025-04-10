@@ -63,8 +63,6 @@ def deploy(environment, action, region, exec, include_tfvars):
         apply_command += " -var-file=../terraform.tfvars"
         destroy_command += " -var-file=../terraform.tfvars"
 
-    # OTVORI CONFIG I ZA SVAKI PARAMETAR NAPRAVI OVO
-
     if exec == "local":
         profile = deployment_profile(environment)
         backend_bucket = get_backend_bucket(profile, region)

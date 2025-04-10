@@ -1,3 +1,4 @@
+import json
 import sys
 
 import boto3
@@ -49,7 +50,7 @@ def get_secret(secret_name, region="us-east-1"):
         raise e
 
     secret = get_secret_value_response["SecretString"]
-    return secret
+    return json.loads(secret)
 
 
 try:
@@ -79,19 +80,18 @@ try:
 
         dyf = DynamicFrame.fromDF(filtered_earthquake_df, glueContext, "dyf")
 
-        secret_config = get_secret("snowflake/test/secret")
-        print(secret_config)
+        secret_config = get_secret(secret_name)
 
         glueContext.write_dynamic_frame.from_options(
             frame=dyf,
             connection_type="snowflake",
             connection_options={
-                "sfurl": "GWWWAWW-KQB44753.snowflakecomputing.com",
+                "sfurl": secret_config["sfurl"],
                 "dbtable": dest_table,
-                "sfuser": "aws_test_user",
-                "sfpassword": "Aws_test_user123",
-                "sfDatabase": "test_database",
-                "sfSchema": "test",
+                "sfuser": secret_config["sfuser"],
+                "sfpassword": secret_config["sfpassword"],
+                "sfDatabase": sfDatabase,
+                "sfSchema": sfSchema,
                 "sfWarehouse": "COMPUTE_WH",
                 "preactions": f"TRUNCATE TABLE {dest_table}",
             },

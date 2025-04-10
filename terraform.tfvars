@@ -1,4 +1,4 @@
-sf_db_name = "default_db"
-sf_table_name = "earthquake_data"
+sf_db_name = "DEFAULT_DB"
+sf_table_name = "EARTHQUAKE_DATE"
 sf_schema_name = "PUBLIC"
 sf_secret_name = "snowflake/test/secret"
