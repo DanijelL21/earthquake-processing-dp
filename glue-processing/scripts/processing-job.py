@@ -28,7 +28,7 @@ source_table = args["SourceTableName"]
 dest_table = args["DestTableName"]
 secret_name = args["SecretName"]
 sfDatabase = args["SFDatabase"]
-sfSchema = args["SecretName"]
+sfSchema = args["SFSchema"]
 
 sc = SparkContext()
 glueContext = GlueContext(sc)
