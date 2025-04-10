@@ -4,6 +4,11 @@ resource "snowflake_database" "default_db" {
   name = var.sf_db_name
 }
 
+resource "snowflake_schema" "analytics_schema" {
+  name     = var.sf_schema_name
+  database = snowflake_database.default_db.name
+}
+
 resource "snowflake_table" "earthquake_table" {
   name     = var.sf_table_name
   database = snowflake_database.default_db.name
