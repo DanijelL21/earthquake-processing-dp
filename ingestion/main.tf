@@ -2,7 +2,7 @@ resource "null_resource" "install_dependencies" {
   provisioner "local-exec" {
     command = <<EOT
       rm -rf build && mkdir build
-      cp -r ../src/earthquake_processing/* build/
+      cp -r ../src/* build/
       pip install -r  ../src/requirements.txt -t build/
     EOT
   }
@@ -36,7 +36,7 @@ resource "aws_lambda_function" "ingestion_lambda" {
 
   filename         = data.archive_file.lambda_zip.output_path
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  handler          = "ingestion_lambda.lambda_handler"
+  handler          = "earthquake_processing.ingestion_lambda.lambda_handler"
   runtime          = "python3.9"
   timeout          = 300
 
@@ -211,5 +211,5 @@ resource "aws_cloudwatch_metric_alarm" "ingestion_lambda_errors" {
   alarm_actions = [
     data.aws_ssm_parameter.admin_sns_topic.value
   ]
-  actions_enabled = "false"
+  actions_enabled = "true"
 }

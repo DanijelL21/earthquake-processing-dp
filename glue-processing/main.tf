@@ -21,6 +21,8 @@ resource "aws_s3_object" "glue_jobs_scripts" {
   bucket = data.aws_ssm_parameter.s3_artifact_bucket.value
   key    = "glue-jobs/${each.value}"
   source = "scripts/${each.value}"
+
+  etag = filemd5("scripts/${each.value}")
 }
 
 
@@ -91,9 +93,9 @@ resource "aws_glue_trigger" "processing_job_trigger" {
 
 resource "aws_glue_job" "processing_job" {
   name         = "${var.project_part}-glue-job"
-  glue_version = "3.0"
+  glue_version = "5.0"
   role_arn     = aws_iam_role.glue_role.arn
-  max_retries  = 3
+  max_retries  = 0
 
   command {
     name            = "glueetl"
@@ -148,7 +150,7 @@ resource "aws_glue_job" "processing_job_alarm" {
   command {
     name            = "pythonshell"
     script_location = "s3://${data.aws_ssm_parameter.s3_artifact_bucket.value}/glue-jobs/processing-job-fail-alarm.py"
-    python_version  = "3"
+    python_version  = "3.9"
   }
 
   default_arguments = {
@@ -187,21 +189,48 @@ resource "aws_iam_role_policy" "glue_policy" {
       {
         Effect = "Allow"
         Action = [
-          "s3:*"
+          "s3:ListBucket",
+          "s3:GetObject"
         ]
-        Resource = "*" # MODIFY
+        Resource = [
+          "arn:aws:s3:::${data.aws_ssm_parameter.source_bucket.value}",
+          "arn:aws:s3:::${data.aws_ssm_parameter.source_bucket.value}/*",
+          "arn:aws:s3:::${data.aws_ssm_parameter.s3_artifact_bucket.value}",
+          "arn:aws:s3:::${data.aws_ssm_parameter.s3_artifact_bucket.value}/*"
+        ]
       },
       {
         Effect = "Allow"
         Action = [
-          "sns:Publish"
+          "secretsmanager:GetSecretValue"
         ]
         Resource = "*"
       },
       {
         Effect = "Allow"
         Action = [
-          "secretsmanager:GetSecretValue"
+          "glue:GetDatabase",
+          "glue:CreateDatabase",
+          "glue:GetTable",
+          "glue:CreateTable",
+          "glue:BatchGetPartition",
+          "glue:BatchCreatePartition",
+          "glue:UpdateTable",
+          "glue:GetPartitions"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:*"
+        ]
+        Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "sns:Publish"
         ]
         Resource = "*"
       }
@@ -229,3 +258,4 @@ resource "aws_cloudwatch_event_target" "sns" {
   target_id = "SendToSNS"
   arn       = data.aws_ssm_parameter.admin_sns_topic.value
 }
+

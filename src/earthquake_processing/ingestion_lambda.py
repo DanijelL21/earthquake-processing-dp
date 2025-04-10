@@ -6,7 +6,8 @@ import json
 import os
 
 from aws_lambda_powertools import Logger
-from common import FirehoseDelivery, get_earthquake_data
+
+from earthquake_processing.common import FirehoseDelivery, get_earthquake_data
 
 logger = Logger()
 
